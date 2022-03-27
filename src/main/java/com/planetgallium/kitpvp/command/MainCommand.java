@@ -17,7 +17,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -42,76 +41,66 @@ public class MainCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String alias, String[] args) {
 
-        if (args.length == 0) {
+        if (args.length == 0 || args[0].equalsIgnoreCase("help")) {
+            String header = messages.getString("Messages.Commands.HelpHeader");
+            if (header != null) {
+                sender.sendMessage(header);
+                sender.sendMessage(Toolkit.translate(" "));
+            }
+            String format = messages.getString("Messages.Commands.HelpFormat");
+            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp")
+                    .replace("%args%", "").replace("%desc%", "Displays information about KitPvP")));
+            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp help")
+                    .replace("%args%", "").replace("%desc%", "Displays the help message")));
+            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp reload")
+                    .replace("%args%", "").replace("%desc%", "Reloads the configuration files")));
+            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp debug")
+                    .replace("%args%", "").replace("%desc%", "Prints debug information")));
+            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp addspawn")
+                    .replace("%args%", "").replace("%desc%", "Adds a spawn to an arena")));
+            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp arena")
+                    .replace("%args%", "<arena>").replace("%desc%", "Teleports you to a different arena")));
+            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp delarena")
+                    .replace("%args%", "").replace("%desc%", "Removes an arena")));
+            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp spawn")
+                    .replace("%args%", "").replace("%desc%", "Teleports you to the local arena spawn")));
 
-            sender.sendMessage(Toolkit.translate("&7[&b&lKIT-PVP&7]"));
-            sender.sendMessage(Toolkit.translate("&7Version: &b" + plugin.getDescription().getVersion()));
-            sender.sendMessage(Toolkit.translate("&7Developers: &b" + String.join(", ", plugin.getDescription().getAuthors())));
-            sender.sendMessage(Toolkit.translate("&7Commands: &b/kp help"));
-            sender.sendMessage(Toolkit.translate("&7Download: &bbit.ly/KP-Download"));
+            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp create")
+                    .replace("%args%", "<kitName>").replace("%desc%", "Creates a kit from your inventory")));
+            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp delete")
+                    .replace("%args%", "<kitName>").replace("%desc%", "Deletes an existing kit")));
+            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp preview")
+                    .replace("%args%", "<kitName>").replace("%desc%", "Preview the contents of a kit")));
+            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp kits")
+                    .replace("%args%", "").replace("%desc%", "Lists all available kits")));
+
+            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp kit")
+                    .replace("%args%", "<kitName>").replace("%desc%", "Select a kit")));
+            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp kit")
+                    .replace("%args%", "<kitName> <player>").replace("%desc%", "Attempts to select a kit for a player")));
+            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp clear")
+                    .replace("%args%", "").replace("%desc%", "Clears your current kit")));
+            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp clear")
+                    .replace("%args%", "<player>").replace("%desc%", "Clears a kit for a player")));
+            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp stats")
+                    .replace("%args%", "").replace("%desc%", "View your stats")));
+            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp stats")
+                    .replace("%args%", "<player>").replace("%desc%", "View the stats of another player")));
+            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp menu")
+                    .replace("%args%", "").replace("%desc%", "Displays the kits menu")));
+            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp setstats")
+                    .replace("%args%", "<player> <type> <amount>").replace("%desc%", "Change stats of a player")));
+            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp export")
+                    .replace("%args%", "").replace("%desc%", "Exports all stats to the new storage format")));
+            String footer = messages.getString("Messages.Commands.HelpFooter");
+            if (footer != null) {
+                sender.sendMessage(Toolkit.translate(" "));
+                sender.sendMessage(footer);
+            }
             return true;
 
         } else if (args.length == 1) {
-
-            if (args[0].equalsIgnoreCase("help")) {
-                String header = messages.getString("Messages.Commands.HelpHeader");
-                if (header != null) {
-                    sender.sendMessage(header);
-                    sender.sendMessage(Toolkit.translate(" "));
-                }
-                String format = messages.getString("Messages.Commands.HelpFormat");
-                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp")
-                        .replace("%args%", "").replace("%desc%", "Displays information about KitPvP")));
-                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp help")
-                        .replace("%args%", "").replace("%desc%", "Displays the help message")));
-                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp reload")
-                        .replace("%args%", "").replace("%desc%", "Reloads the configuration files")));
-                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp debug")
-                        .replace("%args%", "").replace("%desc%", "Prints debug information")));
-                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp addspawn")
-                        .replace("%args%", "").replace("%desc%", "Adds a spawn to an arena")));
-                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp arena")
-                        .replace("%args%", "<arena>").replace("%desc%", "Teleports you to a different arena")));
-                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp delarena")
-                        .replace("%args%", "").replace("%desc%", "Removes an arena")));
-                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp spawn")
-                        .replace("%args%", "").replace("%desc%", "Teleports you to the local arena spawn")));
-
-                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp create")
-                        .replace("%args%", "<kitName>").replace("%desc%", "Creates a kit from your inventory")));
-                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp delete")
-                        .replace("%args%", "<kitName>").replace("%desc%", "Deletes an existing kit")));
-                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp preview")
-                        .replace("%args%", "<kitName>").replace("%desc%", "Preview the contents of a kit")));
-                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp kits")
-                        .replace("%args%", "").replace("%desc%", "Lists all available kits")));
-
-                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp kit")
-                        .replace("%args%", "<kitName>").replace("%desc%", "Select a kit")));
-                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp kit")
-                        .replace("%args%", "<kitName> <player>").replace("%desc%", "Attempts to select a kit for a player")));
-                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp clear")
-                        .replace("%args%", "").replace("%desc%", "Clears your current kit")));
-                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp clear")
-                        .replace("%args%", "<player>").replace("%desc%", "Clears a kit for a player")));
-                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp stats")
-                        .replace("%args%", "").replace("%desc%", "View your stats")));
-                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp stats")
-                        .replace("%args%", "<player>").replace("%desc%", "View the stats of another player")));
-                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp menu")
-                        .replace("%args%", "").replace("%desc%", "Displays the kits menu")));
-                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp setstats")
-                        .replace("%args%", "<player> <type> <amount>").replace("%desc%", "Change stats of a player")));
-                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp export")
-                        .replace("%args%", "").replace("%desc%", "Exports all stats to the new storage format")));
-                String footer = messages.getString("Messages.Commands.HelpFooter");
-                if (footer != null) {
-                    sender.sendMessage(Toolkit.translate(" "));
-                    sender.sendMessage(footer);
-                }
-                return true;
-
-            } else if (args[0].equalsIgnoreCase("reload") && hasPermission(sender, "kp.command.reload")) {
+            if (args[0].equalsIgnoreCase("reload") && hasPermission(sender, "kp.command.reload")) {
 
                 resources.reload();
                 CacheManager.clearCaches();
@@ -119,20 +108,6 @@ public class MainCommand implements CommandExecutor {
 
                 sender.sendMessage(messages.getString("Messages.Commands.Reload"));
                 return true;
-
-            } else if (args[0].equalsIgnoreCase("debug") && hasPermission(sender, "kp.command.debug")) {
-
-                String names = "";
-
-                for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
-                    names += plugin.getName() + " ";
-                }
-
-                sender.sendMessage(Toolkit.translate("&7[&b&lKIT-PVP&7] &aServer Version: &7" + Bukkit.getBukkitVersion()) + " " + (Bukkit.getVersion().contains("Spigot") ? "(Spigot)" : "(Other)"));
-                sender.sendMessage(Toolkit.translate("&7[&b&lKIT-PVP&7] &aPlugin Version: " + plugin.getDescription().getVersion() + " " + (plugin.needsUpdate() ? "&c(Requires Update)" : "&a(Latest Version)")));
-                sender.sendMessage(Toolkit.translate("&7[&b&lKIT-PVP&7] &aSpawn Set: " + (config.contains("Arenas") ? "&aConfigured" : "&cUnconfigured")));
-                sender.sendMessage(Toolkit.translate("&7[&b&lKIT-PVP&7] &aSupport Discord: &7https://discord.gg/Hfej6UR8Bk"));
-                sender.sendMessage(Toolkit.translate("&7[&b&lKIT-PVP&7] &aPlugin List: &7" + names));
 
             } else if (args[0].equalsIgnoreCase("export") && hasPermission(sender, "kp.command.export")) {
 
@@ -267,9 +242,9 @@ public class MainCommand implements CommandExecutor {
                             int amount = Integer.parseInt(possibleAmount);
                             arena.getStats().setStat(statsIdentifier, playerName, amount);
                             sender.sendMessage(resources.getMessages().getString("Messages.Commands.SetStats")
-                                                       .replace("%player%", playerName)
-                                                       .replace("%amount%", String.valueOf(amount))
-                                                       .replace("%type%", statsIdentifier));
+                                    .replace("%player%", playerName)
+                                    .replace("%amount%", String.valueOf(amount))
+                                    .replace("%type%", statsIdentifier));
                             return true;
 
                         } else {
@@ -279,15 +254,15 @@ public class MainCommand implements CommandExecutor {
                     } else {
 
                         sender.sendMessage(resources.getMessages().getString("Messages.Error.InvalidNumber")
-                                                   .replace("%number%", possibleAmount));
+                                .replace("%number%", possibleAmount));
 
                     }
 
                 } else {
 
                     sender.sendMessage(resources.getMessages().getString("Messages.Error.InvalidType")
-                                               .replace("%type%", statsIdentifier)
-                                               .replace("%types%", "kills, deaths, level, experience"));
+                            .replace("%type%", statsIdentifier)
+                            .replace("%types%", "kills, deaths, level, experience"));
 
                 }
 
@@ -325,10 +300,11 @@ public class MainCommand implements CommandExecutor {
                         p.sendMessage(messages.getString("Messages.Commands.Teleporting"));
                         XSound.play(p, "ENTITY_ITEM_PICKUP, 1, -1");
 
-                        int[] beforeLocation = new int[] {p.getLocation().getBlockX(), p.getLocation().getBlockY(), p.getLocation().getBlockZ()};
+                        int[] beforeLocation = new int[]{p.getLocation().getBlockX(), p.getLocation().getBlockY(), p.getLocation().getBlockZ()};
 
                         new BukkitRunnable() {
                             public int time = config.getInt("Spawn.Time") + 1;
+
                             @Override
                             public void run() {
                                 time--;
