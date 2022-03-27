@@ -71,9 +71,9 @@ public class Game extends JavaPlugin implements Listener {
 		getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 	    getCommand("kitpvp").setExecutor(new MainCommand(this));
 
-		if (resources.getConfig().getBoolean("Metrics.Enabled"))
+		if (resources.getConfig().getBoolean("Other.EnableMetrics"))
 			new Metrics(this);
-		if (resources.getConfig().getBoolean("Updater.Enabled"))
+		if (resources.getConfig().getBoolean("Other.EnableUpdater"))
 			new BukkitRunnable() {
 				@Override
 				public void run() {
