@@ -17,7 +17,7 @@ public class AliasCommand implements Listener {
 
 	@EventHandler
 	public void onCommand(PlayerCommandPreprocessEvent e) {
-		
+
 		Player p = e.getPlayer();
 		String message = e.getMessage();
 
@@ -33,7 +33,7 @@ public class AliasCommand implements Listener {
 			e.setCancelled(true);
 			p.performCommand("kp kits");
 
-		} else if (message.startsWith("/kit") && config.getBoolean("Commands.Alias.Kit")) {
+		} else if ((message.equals("/kit") || message.startsWith("/kit ")) && config.getBoolean("Commands.Alias.Kit")) {
 
 			if (words.length == 1) {
 				e.setCancelled(true);
@@ -43,7 +43,7 @@ public class AliasCommand implements Listener {
 				p.performCommand("kp kit " + words[1]);
 			}
 
-		} else if (message.startsWith("/stats") && config.getBoolean("Commands.Alias.Stats")) {
+		} else if ((message.equalsIgnoreCase("/stats") || message.startsWith("/stats ")) && config.getBoolean("Commands.Alias.Stats")) {
 
 			if (words.length == 1) {
 				e.setCancelled(true);
@@ -54,7 +54,7 @@ public class AliasCommand implements Listener {
 			}
 
 		}
-		
+
 	}
-	
+
 }
