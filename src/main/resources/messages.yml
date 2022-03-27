@@ -4,6 +4,8 @@ Messages:
     Permission: '%prefix% &cYou do not have permission (%permission%).'
     Player: '%prefix% &cYou must be a player to perform this action.'
   Commands:
+    HelpHeader: '&3&m           &r &b&lKIT-PVP &3Created by Cervinakuy &3&m             '
+    HelpFooter: '&3&m                                                                               '
     Create: '%prefix% &7The kit &b%kit% &7has successfully been created.'
     Delete: '%prefix% &7The kit &b%kit% &7has successfully been deleted.'
     Kit: '%prefix% &7You have selected kit &b%kit%&7.'
@@ -32,6 +34,7 @@ Messages:
     Lost: '%prefix% &cKit not found! Remember kit names are case-sensitive!'
     Arguments: '%prefix% Please specify more arguments in the command.'
     Kit: '%prefix% &cYou must select a kit before hitting players.'
+    TeleportCombat: '%prefix% &cYou have engaged in combat, teleportation cancelled.'
     Moved: '%prefix% &cYou moved, teleportation cancelled.'
     Invincible: '%prefix% &cYou cannot hit that player because they have no kit.'
     Selected: '%prefix% &cYou have already selected a kit.'

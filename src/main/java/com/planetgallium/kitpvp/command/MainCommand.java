@@ -1,14 +1,17 @@
 package com.planetgallium.kitpvp.command;
 
 import com.cryptomorin.xseries.XSound;
+import com.cryptomorin.xseries.messages.ActionBar;
 import com.planetgallium.kitpvp.Game;
 import com.planetgallium.kitpvp.api.Kit;
 import com.planetgallium.kitpvp.game.Arena;
-import com.planetgallium.kitpvp.util.*;
+import com.planetgallium.kitpvp.util.CacheManager;
+import com.planetgallium.kitpvp.util.Resource;
+import com.planetgallium.kitpvp.util.Resources;
+import com.planetgallium.kitpvp.util.Toolkit;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -18,12 +21,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainCommand implements CommandExecutor {
-
-    private final List<String> spawnUsers = new ArrayList<>();
 
     private final Game plugin;
     private final Arena arena;
@@ -46,7 +45,7 @@ public class MainCommand implements CommandExecutor {
 
             sender.sendMessage(Toolkit.translate("&7[&b&lKIT-PVP&7]"));
             sender.sendMessage(Toolkit.translate("&7Version: &b" + plugin.getDescription().getVersion()));
-            sender.sendMessage(Toolkit.translate("&7Developer: &bCervinakuy"));
+            sender.sendMessage(Toolkit.translate("&7Developers: &b" + String.join(", ", plugin.getDescription().getAuthors())));
             sender.sendMessage(Toolkit.translate("&7Commands: &b/kp help"));
             sender.sendMessage(Toolkit.translate("&7Download: &bbit.ly/KP-Download"));
             return true;
@@ -54,9 +53,11 @@ public class MainCommand implements CommandExecutor {
         } else if (args.length == 1) {
 
             if (args[0].equalsIgnoreCase("help")) {
-
-                sender.sendMessage(Toolkit.translate("&3&m           &r &b&lKIT-PVP &3Created by Cervinakuy &3&m             "));
-                sender.sendMessage(Toolkit.translate(" "));
+                String header = messages.getString("Messages.Commands.HelpHeader");
+                if (header != null) {
+                    sender.sendMessage(header);
+                    sender.sendMessage(Toolkit.translate(" "));
+                }
                 sender.sendMessage(Toolkit.translate("&7- &b/kp &7Displays information about KitPvP."));
                 sender.sendMessage(Toolkit.translate("&7- &b/kp help &7Displays the help message."));
                 sender.sendMessage(Toolkit.translate("&7- &b/kp reload &7Reloads the configuration files."));
@@ -78,8 +79,11 @@ public class MainCommand implements CommandExecutor {
                 sender.sendMessage(Toolkit.translate("&7- &b/kp menu &7Displays the kits menu."));
                 sender.sendMessage(Toolkit.translate("&7- &b/kp setstats <player> <type> <amount> &7Change stats of a player."));
                 sender.sendMessage(Toolkit.translate("&7- &b/kp export &7Exports all stats to the new storage format."));
-                sender.sendMessage(Toolkit.translate(" "));
-                sender.sendMessage(Toolkit.translate("&3&m                                                                               "));
+                String footer = messages.getString("Messages.Commands.HelpFooter");
+                if (footer != null) {
+                    sender.sendMessage(Toolkit.translate(" "));
+                    sender.sendMessage(footer);
+                }
                 return true;
 
             } else if (args[0].equalsIgnoreCase("reload") && hasPermission(sender, "kp.command.reload")) {
@@ -268,9 +272,7 @@ public class MainCommand implements CommandExecutor {
 
         }
 
-        if (sender instanceof Player) {
-
-            Player p = (Player) sender;
+        if (sender instanceof Player p) {
 
             if (args.length == 1) {
 
@@ -284,75 +286,56 @@ public class MainCommand implements CommandExecutor {
 
                 } else if (args[0].equalsIgnoreCase("spawn") && hasPermission(sender, "kp.command.spawn")) {
 
-                    if (config.contains("Arenas." + p.getWorld().getName())) {
-
-                        if (!spawnUsers.contains(p.getName())) {
-
-                            spawnUsers.add(p.getName());
-
-                            p.sendMessage(messages.getString("Messages.Commands.Teleporting"));
-                            XSound.play(p, "ENTITY_ITEM_PICKUP, 1, -1");
-
-                            Location beforeLocation = p.getLocation();
-
-                            new BukkitRunnable() {
-
-                                public int time = config.getInt("Spawn.Time") + 1;
-
-                                @Override
-                                public void run() {
-
-                                    time--;
-
-                                    if (time != 0) {
-
-                                        if (p.getGameMode() != GameMode.SPECTATOR) {
-
-                                            p.sendMessage(messages.getString("Messages.Commands.Time").replace("%time%", String.valueOf(time)));
-                                            XSound.play(p, "BLOCK_NOTE_BLOCK_SNARE, 1, 1");
-
-                                            if (beforeLocation.getBlockX() != p.getLocation().getBlockX() || beforeLocation.getBlockY() != p.getLocation().getBlockY() || beforeLocation.getBlockZ() != p.getLocation().getBlockZ()) {
-
-                                                p.sendMessage(messages.getString("Messages.Error.Moved"));
-                                                spawnUsers.remove(p.getName());
-                                                cancel();
-
-                                            }
-
-                                        } else {
-
-                                            spawnUsers.remove(p.getName());
-                                            cancel();
-
-                                        }
-
-                                    } else {
-
-                                        p.sendMessage(messages.getString("Messages.Commands.Teleport"));
-
-                                        arena.toSpawn(p, p.getWorld().getName());
-
-                                        if (config.getBoolean("Arena.ClearKitOnCommandSpawn")) {
-                                            clearKit(p);
-                                        }
-
-                                        spawnUsers.remove(p.getName());
-
-                                        XSound.play(p, "ENTITY_ENDERMAN_TELEPORT, 1, 1");
-
-                                        cancel();
-
-                                    }
-
-                                }
-
-                            }.runTaskTimer(plugin, 0L, 20L);
-
-                        }
-
-                    } else {
-
+                    if (!config.contains("Arenas." + p.getWorld().getName())) {
                         p.sendMessage(messages.getString("Messages.Error.Arena").replace("%arena%", p.getWorld().getName()));
+                    } else if (!plugin.isTeleporting(p)) {
+
+                        plugin.startTeleport(p);
+
+                        p.sendMessage(messages.getString("Messages.Commands.Teleporting"));
+                        XSound.play(p, "ENTITY_ITEM_PICKUP, 1, -1");
+
+                        int[] beforeLocation = new int[] {p.getLocation().getBlockX(), p.getLocation().getBlockY(), p.getLocation().getBlockZ()};
+
+                        new BukkitRunnable() {
+                            public int time = config.getInt("Spawn.Time") + 1;
+                            @Override
+                            public void run() {
+                                time--;
+                                if (!p.isOnline() || p.getGameMode() == GameMode.SPECTATOR) {
+                                    plugin.cancelTeleport(p);
+                                    cancel();
+                                    return;
+                                }
+                                if (!plugin.isTeleporting(p)) {
+                                    p.sendMessage(messages.getString("Messages.Error.TeleportCombat"));
+                                    cancel();
+                                    return;
+                                }
+                                if (beforeLocation[0] != p.getLocation().getBlockX() || beforeLocation[1] != p.getLocation().getBlockY() || beforeLocation[2] != p.getLocation().getBlockZ()) {
+                                    p.sendMessage(messages.getString("Messages.Error.Moved"));
+                                    plugin.cancelTeleport(p);
+                                    cancel();
+                                    return;
+                                }
+                                if (time != 0) { // Still waiting
+                                    if (config.getBoolean("Spawn.UseActionBar"))
+                                        ActionBar.sendActionBar(p, messages.getString("Messages.Commands.Time"));
+                                    else
+                                        p.sendMessage(messages.getString("Messages.Commands.Time")
+                                                .replace("%time%", String.valueOf(time)));
+                                    XSound.play(p, "BLOCK_NOTE_BLOCK_SNARE, 1, 1");
+                                } else { // Wait ended
+                                    p.sendMessage(messages.getString("Messages.Commands.Teleport"));
+                                    arena.toSpawn(p, p.getWorld().getName());
+                                    if (config.getBoolean("Arena.ClearKitOnCommandSpawn"))
+                                        clearKit(p);
+                                    plugin.cancelTeleport(p);
+                                    XSound.play(p, "ENTITY_ENDERMAN_TELEPORT, 1, 1");
+                                    cancel();
+                                }
+                            }
+                        }.runTaskTimer(plugin, 0L, 20L);
 
                     }
 
@@ -492,15 +475,13 @@ public class MainCommand implements CommandExecutor {
         p.getInventory().clear();
 
         Toolkit.setMaxHealth(p, 20);
-        p.setHealth(20.0);
+        if (!p.isDead()) p.setHealth(20.0);
 
-        for (PotionEffect effect : p.getActivePotionEffects()) {
+        for (PotionEffect effect : p.getActivePotionEffects())
             p.removePotionEffect(effect.getType());
-        }
 
-        if (config.getBoolean("Arena.GiveItemsOnClear")) {
+        if (config.getBoolean("Arena.GiveItemsOnClear"))
             arena.giveItems(p);
-        }
 
         arena.getKits().resetKit(p.getName());
 

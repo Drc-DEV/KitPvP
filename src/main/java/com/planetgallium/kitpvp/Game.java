@@ -19,6 +19,10 @@ import com.planetgallium.kitpvp.game.Arena;
 import com.planetgallium.kitpvp.listener.*;
 import com.planetgallium.kitpvp.util.*;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
+
 public class Game extends JavaPlugin implements Listener {
 	
 	private static Game instance;
@@ -141,6 +145,18 @@ public class Game extends JavaPlugin implements Listener {
 
 		}
 		
+	}
+
+	private Set<UUID> teleportingUsers = new HashSet<>();
+
+	public boolean isTeleporting(Player user) {
+		return teleportingUsers.contains(user.getUniqueId());
+	}
+	public void cancelTeleport(Player user) {
+		teleportingUsers.remove(user.getUniqueId());
+	}
+	public void startTeleport(Player user) {
+		teleportingUsers.add(user.getUniqueId());
 	}
 
 	public boolean hasPlaceholderAPI() { return hasPlaceholderAPI; }
