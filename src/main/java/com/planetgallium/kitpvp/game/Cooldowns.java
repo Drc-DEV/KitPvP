@@ -1,7 +1,5 @@
 package com.planetgallium.kitpvp.game;
 
-import java.util.UUID;
-
 import com.planetgallium.kitpvp.Game;
 import com.planetgallium.kitpvp.api.Ability;
 import com.planetgallium.kitpvp.api.Kit;
@@ -33,9 +31,8 @@ public class Cooldowns {
 		int actionCooldownSeconds = 0;
 		Cooldown noCooldown = new Cooldown(0, 0, 0, 0);
 
-		if (type instanceof Kit) {
+		if (type instanceof Kit kit) {
 
-			Kit kit = (Kit) type;
 			if (kit.getCooldown() == null) return noCooldown;
 
 			Object timeLastUsedResult = database.getData(kit.getName() + "_cooldowns", "last_used", p.getName());
@@ -46,9 +43,8 @@ public class Cooldowns {
 			}
 			actionCooldownSeconds = kit.getCooldown().toSeconds();
 
-		} else if (type instanceof Ability) {
+		} else if (type instanceof Ability ability) {
 
-			Ability ability = (Ability) type;
 			if (ability.getCooldown() == null ||
 					!CacheManager.getPlayerAbilityCooldowns(p.getName()).containsKey(ability.getName()))
 				return noCooldown;

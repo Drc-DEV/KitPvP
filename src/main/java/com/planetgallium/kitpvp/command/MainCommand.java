@@ -4,6 +4,7 @@ import com.cryptomorin.xseries.XSound;
 import com.cryptomorin.xseries.messages.ActionBar;
 import com.planetgallium.kitpvp.Game;
 import com.planetgallium.kitpvp.api.Kit;
+import com.planetgallium.kitpvp.api.PlayerArenaTeleportEvent;
 import com.planetgallium.kitpvp.game.Arena;
 import com.planetgallium.kitpvp.util.CacheManager;
 import com.planetgallium.kitpvp.util.Resource;
@@ -289,7 +290,12 @@ public class MainCommand implements CommandExecutor {
                     if (!config.contains("Arenas." + p.getWorld().getName())) {
                         p.sendMessage(messages.getString("Messages.Error.Arena").replace("%arena%", p.getWorld().getName()));
                     } else if (!plugin.isTeleporting(p)) {
-
+                        PlayerArenaTeleportEvent event = new PlayerArenaTeleportEvent(p);
+                        Bukkit.getPluginManager().callEvent(event);
+                        if (event.isCancelled()) {
+                            p.sendMessage(messages.getString("Messages.Error.TeleportDenied"));
+                            return true;
+                        }
                         plugin.startTeleport(p);
 
                         p.sendMessage(messages.getString("Messages.Commands.Teleporting"));

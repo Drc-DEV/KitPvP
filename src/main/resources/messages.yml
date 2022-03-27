@@ -35,6 +35,7 @@ Messages:
     Arguments: '%prefix% Please specify more arguments in the command.'
     Kit: '%prefix% &cYou must select a kit before hitting players.'
     TeleportCombat: '%prefix% &cYou have engaged in combat, teleportation cancelled.'
+    TeleportDenied: '%prefix% &cYou can''t teleport right now.'
     Moved: '%prefix% &cYou moved, teleportation cancelled.'
     Invincible: '%prefix% &cYou cannot hit that player because they have no kit.'
     Selected: '%prefix% &cYou have already selected a kit.'

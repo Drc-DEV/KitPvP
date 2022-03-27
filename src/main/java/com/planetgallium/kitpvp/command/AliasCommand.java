@@ -15,7 +15,7 @@ public class AliasCommand implements Listener {
 		this.config = plugin.getResources().getConfig();
 	}
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void onCommand(PlayerCommandPreprocessEvent e) {
 
 		Player p = e.getPlayer();
@@ -37,7 +37,7 @@ public class AliasCommand implements Listener {
 
 			if (words.length == 1) {
 				e.setCancelled(true);
-				p.performCommand("kp kit");
+				Game.getInstance().getArena().getMenus().getKitMenu().open(p);
 			} else if (words.length == 2) {
 				e.setCancelled(true);
 				p.performCommand("kp kit " + words[1]);
