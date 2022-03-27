@@ -95,14 +95,12 @@ public class Game extends JavaPlugin implements Listener {
 
 		Updater.of(this).resourceId(27107).handleResponse((versionResponse, version) -> {
 			switch (versionResponse) {
-				case FOUND_NEW:
+				case FOUND_NEW -> {
 					Bukkit.getConsoleSender().sendMessage(Toolkit.translate("&7[&b&lKIT-PVP&7] &aNew version found! Please update to v" + version + " on the Spigot page."));
 					needsUpdate = true;
 					updateVersion = version;
-					break;
-				case UNAVAILABLE:
-					Bukkit.getConsoleSender().sendMessage(Toolkit.translate("&7[&b&lKIT-PVP&7] &cUnable to perform an update check."));
-					break;
+				}
+				case UNAVAILABLE -> Bukkit.getConsoleSender().sendMessage(Toolkit.translate("&7[&b&lKIT-PVP&7] &cUnable to perform an update check."));
 			}
 		}).check();
 		

@@ -1,8 +1,10 @@
 package com.planetgallium.kitpvp.listener;
 
 import com.cryptomorin.xseries.XMaterial;
+import com.planetgallium.kitpvp.Game;
 import com.planetgallium.kitpvp.game.Arena;
 import com.planetgallium.kitpvp.util.Resources;
+import com.planetgallium.kitpvp.util.Toolkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -10,9 +12,6 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import com.planetgallium.kitpvp.Game;
-import com.planetgallium.kitpvp.util.Toolkit;
 
 public class TrackerListener implements Listener {
 
@@ -79,7 +78,7 @@ public class TrackerListener implements Listener {
 	private void updateTrackingCompass(Player player, ItemStack compass, String[] nearestPlayerData) {
 
 		ItemMeta compassMeta = compass.getItemMeta();
-
+		if (compassMeta == null) return;
 		if (nearestPlayerData != null) {
 			Player nearestPlayer = Toolkit.getPlayer(player.getWorld(), nearestPlayerData[0]);
 			double nearestPlayerDistance = Toolkit.round(Double.parseDouble(nearestPlayerData[1]), 1);

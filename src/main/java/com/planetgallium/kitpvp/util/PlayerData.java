@@ -12,21 +12,21 @@ public class PlayerData {
     }
 
     public int getDataByIdentifier(String identifier) {
-        switch (identifier) {
-            case "kills": return getKills();
-            case "deaths": return getDeaths();
-            case "experience": return getExperience();
-            case "level": return getLevel();
-        }
-        return -1;
+        return switch (identifier) {
+            case "kills" -> getKills();
+            case "deaths" -> getDeaths();
+            case "experience" -> getExperience();
+            case "level" -> getLevel();
+            default -> -1;
+        };
     }
 
     public void setDataByIdentifier(String identifier, int data) {
         switch (identifier) {
-            case "kills": setKills(data); break;
-            case "deaths": setDeaths(data); break;
-            case "experience": setExperience(data); break;
-            case "level": setLevel(data); break;
+            case "kills" -> setKills(data);
+            case "deaths" -> setDeaths(data);
+            case "experience" -> setExperience(data);
+            case "level" -> setLevel(data);
         }
     }
 

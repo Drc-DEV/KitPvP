@@ -6,10 +6,12 @@ import com.cryptomorin.xseries.XPotion;
 import com.cryptomorin.xseries.XSound;
 import com.planetgallium.kitpvp.Game;
 import com.planetgallium.kitpvp.api.Ability;
-import com.planetgallium.kitpvp.util.*;
+import com.planetgallium.kitpvp.util.Cooldown;
+import com.planetgallium.kitpvp.util.Resource;
+import com.planetgallium.kitpvp.util.Toolkit;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -41,13 +43,16 @@ public class AttributeParser {
         if (effectsSection != null) {
 
             for (String effectName : effectsSection.getKeys(false)) {
-                PotionEffectType type = XPotion.matchXPotion(effectName).get().parsePotionEffectType();
-                int amplifier = resource.getInt(path + "." + effectName + ".Amplifier");
-                int duration = resource.getInt(path + "." + effectName + ".Duration");
+                XPotion.matchXPotion(effectName).ifPresent(p -> {
+                    PotionEffectType type = p.getPotionEffectType();
 
-                effects.add(new PotionEffect(type != null ? type : FALLBACK_EFFECT_TYPE,
-                        duration != 0 ? duration : FALLBACK_EFFECT_DURATION_SECONDS,
-                        amplifier != 0 ? amplifier : FALLBACK_EFFECT_AMPLIFIER_NON_ZERO_BASED));
+                    int amplifier = resource.getInt(path + "." + effectName + ".Amplifier");
+                    int duration = resource.getInt(path + "." + effectName + ".Duration");
+
+                    effects.add(new PotionEffect(type != null ? type : FALLBACK_EFFECT_TYPE,
+                            duration != 0 ? duration : FALLBACK_EFFECT_DURATION_SECONDS,
+                            amplifier != 0 ? amplifier : FALLBACK_EFFECT_AMPLIFIER_NON_ZERO_BASED));
+                });
             }
 
         }
@@ -88,21 +93,27 @@ public class AttributeParser {
             }
 
             if (resource.contains(pathPrefix + ".Sound")) {
-                Sound abilitySound = XSound.matchXSound(resource.getString(pathPrefix + ".Sound.Sound")).get().parseSound();
-                int abilitySoundPitch = resource.getInt(pathPrefix + ".Sound.Pitch");
-                int abilitySoundVolume = resource.getInt(pathPrefix + ".Sound.Volume");
-                ability.setSound(abilitySound, abilitySoundPitch, abilitySoundVolume);
+                String soundString = resource.getString(pathPrefix + ".Sound.Sound");
+                if (soundString != null) {
+                    XSound.matchXSound(soundString).ifPresent(s -> {
+                        int abilitySoundPitch = resource.getInt(pathPrefix + ".Sound.Pitch");
+                        int abilitySoundVolume = resource.getInt(pathPrefix + ".Sound.Volume");
+                        ability.setSound(s.parseSound(), abilitySoundPitch, abilitySoundVolume);
+                    });
+                }
             }
 
             if (resource.contains(pathPrefix + ".Effects")) {
                 ConfigurationSection effectSection = resource.getConfigurationSection(pathPrefix + ".Effects");
-
-                for (String effectName : effectSection.getKeys(false)) {
-                    PotionEffectType effectType = XPotion.matchXPotion(effectName).get().parsePotionEffectType();
-                    int amplifier = resource.getInt(pathPrefix + ".Effects." + effectName + ".Amplifier");
-                    int duration = resource.getInt(pathPrefix + ".Effects." + effectName + ".Duration");
-                    ability.addEffect(effectType, amplifier, duration);
-                }
+                if (effectSection != null)
+                    for (String effectName : effectSection.getKeys(false)) {
+                        XPotion.matchXPotion(effectName).ifPresent(p -> {
+                            PotionEffectType effectType = p.getPotionEffectType();
+                            int amplifier = resource.getInt(pathPrefix + ".Effects." + effectName + ".Amplifier");
+                            int duration = resource.getInt(pathPrefix + ".Effects." + effectName + ".Duration");
+                            ability.addEffect(effectType, amplifier, duration);
+                        });
+                    }
             }
 
             if (resource.contains(pathPrefix + ".Commands")) {
@@ -186,7 +197,7 @@ public class AttributeParser {
                 Enchantment enchantment = FALLBACK_ITEM_ENCHANTMENT;
                 Optional<XEnchantment> enchantmentFromConfig = XEnchantment.matchXEnchantment(enchantmentName.toUpperCase());
                 if (enchantmentFromConfig.isPresent()) {
-                    enchantment = enchantmentFromConfig.get().parseEnchantment();
+                    enchantment = enchantmentFromConfig.get().getEnchant();
                 } else {
                     Toolkit.printToConsole(String.format("&7[&b&lKIT-PVP&7] &cUnknown enchantment [%s], defaulting to [THORNS].", enchantmentName));
                 }
@@ -227,10 +238,13 @@ public class AttributeParser {
     private static void setSkull(ItemStack item, String skullOwner) {
 
         item.setType(XMaterial.PLAYER_HEAD.parseMaterial());
-
         SkullMeta skullMeta = (SkullMeta) item.getItemMeta();
-        skullMeta.setOwner(skullOwner);
 
+        if (skullMeta == null) return;
+        if (Toolkit.versionToNumber() < 116)
+            skullMeta.setOwner(skullOwner);
+        else
+            skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(skullOwner));
         item.setItemMeta(skullMeta);
 
     }
@@ -243,6 +257,7 @@ public class AttributeParser {
                 item.getType() == XMaterial.LEATHER_BOOTS.parseMaterial()) {
 
             LeatherArmorMeta dyedMeta = (LeatherArmorMeta) item.getItemMeta();
+            if (dyedMeta == null) return;
             dyedMeta.setColor(color);
             item.setItemMeta(dyedMeta);
 
@@ -329,6 +344,7 @@ public class AttributeParser {
     private static void setCustomEffectsFromPath(ItemStack item, Resource resource, String path) {
 
         PotionMeta potionMeta = (PotionMeta) item.getItemMeta();
+        if (potionMeta == null) return;
 
         for (String effectName : resource.getConfigurationSection(path).getKeys(false)) {
             String specificPath = path + "." + effectName;
@@ -343,16 +359,11 @@ public class AttributeParser {
 
     private static int getVanillaLevel(PotionType type, boolean isUpgraded) {
 
-        switch (type) {
-            case INVISIBILITY: case FIRE_RESISTANCE: case NIGHT_VISION:
-                case SLOWNESS: case WATER_BREATHING: case WEAKNESS:
-                return 1;
-            case INSTANT_DAMAGE: case INSTANT_HEAL: case JUMP: case POISON:
-                case REGEN: case SPEED: case STRENGTH:
-                return isUpgraded ? 2 : 1;
-        }
-
-        return 1;
+        return switch (type) {
+            case INVISIBILITY, FIRE_RESISTANCE, NIGHT_VISION, SLOWNESS, WATER_BREATHING, WEAKNESS -> 1;
+            case INSTANT_DAMAGE, INSTANT_HEAL, JUMP, POISON, REGEN, SPEED, STRENGTH -> isUpgraded ? 2 : 1;
+            default -> 1;
+        };
 
     }
 
