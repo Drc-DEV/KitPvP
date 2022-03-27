@@ -48,14 +48,10 @@ public class MainCommand implements CommandExecutor {
                 sender.sendMessage(Toolkit.translate(" "));
             }
             String format = messages.getString("Messages.Commands.HelpFormat");
-            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp")
-                    .replace("%args%", "").replace("%desc%", "Displays information about KitPvP")));
             sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp help")
                     .replace("%args%", "").replace("%desc%", "Displays the help message")));
             sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp reload")
                     .replace("%args%", "").replace("%desc%", "Reloads the configuration files")));
-            sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp debug")
-                    .replace("%args%", "").replace("%desc%", "Prints debug information")));
             sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp addspawn")
                     .replace("%args%", "").replace("%desc%", "Adds a spawn to an arena")));
             sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp arena")
