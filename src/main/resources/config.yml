@@ -122,6 +122,8 @@ Arena:
   DeathParticles: true
 Other:
   AutomaticallyAddKitToMenu: true
+  EnableUpdater: true
+  EnableMetrics: true
 Spawn:
   Time: 5
   UseActionBar: true

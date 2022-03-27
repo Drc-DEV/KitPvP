@@ -1,6 +1,14 @@
 package com.planetgallium.kitpvp;
 
+import com.google.common.io.ByteArrayDataOutput;
+import com.google.common.io.ByteStreams;
+import com.planetgallium.kitpvp.api.EventListener;
+import com.planetgallium.kitpvp.command.AliasCommand;
+import com.planetgallium.kitpvp.command.MainCommand;
+import com.planetgallium.kitpvp.game.Arena;
 import com.planetgallium.kitpvp.game.Infobase;
+import com.planetgallium.kitpvp.listener.*;
+import com.planetgallium.kitpvp.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -10,14 +18,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import com.google.common.io.ByteArrayDataOutput;
-import com.google.common.io.ByteStreams;
-import com.planetgallium.kitpvp.api.EventListener;
-import com.planetgallium.kitpvp.command.*;
-import com.planetgallium.kitpvp.game.Arena;
-import com.planetgallium.kitpvp.listener.*;
-import com.planetgallium.kitpvp.util.*;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -70,15 +70,16 @@ public class Game extends JavaPlugin implements Listener {
 		
 		getServer().getMessenger().registerOutgoingPluginChannel(this, "BungeeCord");
 	    getCommand("kitpvp").setExecutor(new MainCommand(this));
-		
-		new Metrics(this);
-		
-		new BukkitRunnable() {
-			@Override
-			public void run() {
-				checkUpdate();
-			}
-		}.runTaskAsynchronously(this);
+
+		if (resources.getConfig().getBoolean("Metrics.Enabled"))
+			new Metrics(this);
+		if (resources.getConfig().getBoolean("Updater.Enabled"))
+			new BukkitRunnable() {
+				@Override
+				public void run() {
+					checkUpdate();
+				}
+			}.runTaskAsynchronously(this);
 		
 		if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
 			Bukkit.getConsoleSender().sendMessage(Toolkit.translate("[&b&lKIT-PVP&7] &7Hooking into &bPlaceholderAPI&7..."));
