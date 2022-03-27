@@ -2,16 +2,18 @@ package com.planetgallium.kitpvp.listener;
 
 import com.cryptomorin.xseries.XSound;
 import com.cryptomorin.xseries.messages.Titles;
-import com.planetgallium.kitpvp.util.*;
-import org.bukkit.Effect;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Sound;
-import org.bukkit.World;
-import org.bukkit.entity.*;
+import com.planetgallium.kitpvp.Game;
+import com.planetgallium.kitpvp.game.Arena;
+import com.planetgallium.kitpvp.util.Resource;
+import com.planetgallium.kitpvp.util.Resources;
+import com.planetgallium.kitpvp.util.Toolkit;
+import org.bukkit.*;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -21,10 +23,10 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import com.planetgallium.kitpvp.Game;
-import com.planetgallium.kitpvp.game.Arena;
-
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class DeathListener implements Listener {
 
@@ -43,55 +45,37 @@ public class DeathListener implements Listener {
 
 		// investigate possible memory leak when FancyDeath is enabled
 
-		if (Toolkit.inArena(e.getEntity())) {
+		if (!Toolkit.inArena(e.getEntity())) return;
 
-			Player victim = e.getEntity();
-			e.setDeathMessage("");
+		Player victim = e.getEntity();
+		e.setDeathMessage("");
 
-			if (config.getBoolean("Arena.PreventDeathDrops")) {
-				e.getDrops().clear();
-			}
-
-			setDeathMessage(victim);
-			respawnPlayer(victim);
-
-			arena.getStats().addToStat("deaths", victim.getName(), 1);
-			arena.getStats().removeExperience(victim.getName(), resources.getLevels().getInt("Levels.Options.Experience-Taken-On-Death"));
-
-			if (config.getBoolean("Arena.DeathParticle")) {
-				victim.getWorld().playEffect(victim.getLocation().add(0.0D, 1.0D, 0.0D), Effect.STEP_SOUND, 152);
-			}
-
-			Toolkit.runCommands(victim, config.getStringList("Death.Commands"), "%victim%", victim.getName());
-
-			broadcast(victim.getWorld(), XSound.matchXSound(config.getString("Death.Sound.Sound")).get().parseSound(), 1, config.getInt("Death.Sound.Pitch"));
-
+		if (config.getBoolean("Arena.PreventDeathDrops")) {
+			e.getDrops().clear();
 		}
-	
+
+		setDeathMessage(victim);
+		respawnPlayer(victim);
+
+		arena.getStats().addToStat("deaths", victim.getName(), 1);
+		arena.getStats().removeExperience(victim.getName(), resources.getLevels().getInt("Levels.Options.Experience-Taken-On-Death"));
+
+		if (config.getBoolean("Arena.DeathParticle")) {
+			victim.getWorld().playEffect(victim.getLocation().add(0.0D, 1.0D, 0.0D), Effect.STEP_SOUND, 152);
+		}
+
+		Toolkit.runCommands(victim, config.getStringList("Death.Commands"), "%victim%", victim.getName());
+
+		broadcast(victim.getWorld(), XSound.matchXSound(config.getString("Death.Sound.Sound")).get().parseSound(), 1, config.getInt("Death.Sound.Pitch"));
+
 	}
 
 	@EventHandler
 	public void onRespawn(PlayerRespawnEvent e) {
-
-		if (Toolkit.inArena(e.getPlayer())) {
-
-			if (!config.getBoolean("Arena.FancyDeath")) {
-
-				Player p = e.getPlayer();
-
-				new BukkitRunnable() {
-
-					@Override
-					public void run() {
-						arena.toSpawn(p, p.getWorld().getName());
-					}
-
-				}.runTaskLater(Game.getInstance(), 1L);
-
-			}
-
+		if (Toolkit.inArena(e.getPlayer()) && !config.getBoolean("Arena.FancyDeath")) {
+			Player p = e.getPlayer();
+			Bukkit.getScheduler().runTaskLater(Game.getInstance(), () -> arena.toSpawn(p, p.getWorld().getName()), 1L);
 		}
-
 	}
 
 	private void respawnPlayer(Player victim) {
@@ -264,40 +248,53 @@ public class DeathListener implements Listener {
 
 	}
 
+	private Map<UUID, Map<UUID, Long>> antiGrindingCache = new HashMap<>();
+
+	private boolean isLegitKill(Player victim , Player killer) {
+		if (!config.getBoolean("Kill.AntiGrinding.Enabled")) return true;
+		Map<UUID, Long> killerMap;
+		if (!antiGrindingCache.containsKey(killer.getUniqueId())) {
+			killerMap =  new HashMap<>();
+		} else {
+			killerMap = antiGrindingCache.get(killer.getUniqueId());
+		}
+		if (!killerMap.containsKey(victim.getUniqueId())) {
+			killerMap.put(victim.getUniqueId(), System.currentTimeMillis());
+			antiGrindingCache.put(killer.getUniqueId(), killerMap);
+			return true; // killer killed the victim for the 1st time
+		} else {
+			long lastKilled = killerMap.get(victim.getUniqueId());
+			int minSec = config.getInt("Kill.AntiGrinding.SamePlayerIntervalSeconds");
+			if (System.currentTimeMillis() - lastKilled < minSec*1000L) {
+				if (config.getBoolean("Kill.AntiGrinding.Strict")) {
+					// punish grinders by updating cache :P
+					killerMap.put(victim.getUniqueId(), System.currentTimeMillis());
+					antiGrindingCache.put(killer.getUniqueId(), killerMap);
+				}
+				return false; // too many kills in interval
+			} else {
+				killerMap.put(victim.getUniqueId(), System.currentTimeMillis());
+				antiGrindingCache.put(killer.getUniqueId(), killerMap);
+				return true; // legit kill
+			}
+		}
+	}
+
 	private void creditWithKill(Player victim, Player killer) {
 
-		if (victim != null && killer != null) {
-
-			if (!victim.getName().equals(killer.getName())) {
-
+		if (victim != null && killer != null && !victim.getName().equals(killer.getName())) {
+			boolean isLegit = isLegitKill(victim, killer);
+			if (isLegit) {
 				arena.getStats().addToStat("kills", killer.getName(), 1);
 				arena.getStats().addExperience(killer, resources.getLevels().getInt("Levels.Options.Experience-Given-On-Kill"));
-
+			}
+			if (isLegit || !config.getBoolean("Kill.AntiGrinding.CancelKillCommands")) {
 				List<String> killCommands = config.getStringList("Kill.Commands");
 				killCommands = Toolkit.replaceInList(killCommands, "%victim%", victim.getName());
 				Toolkit.runCommands(killer, killCommands, "%killer%", killer.getName());
-
-				if (resources.getScoreboard().getBoolean("Scoreboard.General.Enabled")) {
-
-					new BukkitRunnable() {
-
-						@Override
-						public void run() {
-
-							if (killer instanceof Player) {
-
-								arena.updateScoreboards(killer, false);
-
-							}
-
-						}
-
-					}.runTaskLater(Game.getInstance(), 20L);
-
-				}
-
 			}
-
+			if (isLegit && resources.getScoreboard().getBoolean("Scoreboard.General.Enabled"))
+				Bukkit.getScheduler().runTaskLater(Game.getInstance(), () -> arena.updateScoreboards(killer, false), 20L);
 		}
 
 	}

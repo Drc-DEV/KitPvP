@@ -35,6 +35,11 @@ Combat:
     NoSpace: '%prefix% &cYou must have at least one slot open in your inventory for you to receive your arrow for your successful shot.'
     Enabled: true
 Kill:
+  AntiGrinding:
+    SamePlayerIntervalSeconds: 300
+    CancelKillCommands: true
+    Strict: false
+    Enabled: false
   SoupReward:
     NoSpace: '%prefix% &c%amount% soups could not be added to your full inventory.'
     Amount: 1
