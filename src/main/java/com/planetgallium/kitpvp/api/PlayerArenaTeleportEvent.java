@@ -26,7 +26,7 @@ public class PlayerArenaTeleportEvent extends Event implements Cancellable {
     }
 
     public String getEventName() {
-        return "PlayerAbilityEvent";
+        return "PlayerArenaTeleportEvent";
     }
 
     public static HandlerList getHandlerList() {
