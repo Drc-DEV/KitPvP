@@ -59,27 +59,51 @@ public class MainCommand implements CommandExecutor {
                     sender.sendMessage(header);
                     sender.sendMessage(Toolkit.translate(" "));
                 }
-                sender.sendMessage(Toolkit.translate("&7- &b/kp &7Displays information about KitPvP."));
-                sender.sendMessage(Toolkit.translate("&7- &b/kp help &7Displays the help message."));
-                sender.sendMessage(Toolkit.translate("&7- &b/kp reload &7Reloads the configuration files."));
-                sender.sendMessage(Toolkit.translate("&7- &b/kp debug &7Prints debug information."));
-                sender.sendMessage(Toolkit.translate("&7- &b/kp addspawn &7Adds a spawn to an arena."));
-                sender.sendMessage(Toolkit.translate("&7- &b/kp arena <arena> &7Teleports you to a different arena."));
-                sender.sendMessage(Toolkit.translate("&7- &b/kp delarena &7Removes an arena."));
-                sender.sendMessage(Toolkit.translate("&7- &b/kp spawn &7Teleports you to the local arena spawn."));
-                sender.sendMessage(Toolkit.translate("&7- &b/kp create <kitName> &7Creates a kit from your inventory."));
-                sender.sendMessage(Toolkit.translate("&7- &b/kp delete <kitName> &7Deletes an existing kit."));
-                sender.sendMessage(Toolkit.translate("&7- &b/kp preview <kitName> &7Preview the contents of a kit."));
-                sender.sendMessage(Toolkit.translate("&7- &b/kp kits &7Lists all available kits."));
-                sender.sendMessage(Toolkit.translate("&7- &b/kp kit <kitName> &7Select a kit."));
-                sender.sendMessage(Toolkit.translate("&7- &b/kp kit <kitName> <player> &7Attempts to select a kit for a player."));
-                sender.sendMessage(Toolkit.translate("&7- &b/kp clear &7Clears your current kit."));
-                sender.sendMessage(Toolkit.translate("&7- &b/kp clear <player> &7Clears a kit for a player."));
-                sender.sendMessage(Toolkit.translate("&7- &b/kp stats &7View your stats."));
-                sender.sendMessage(Toolkit.translate("&7- &b/kp stats <player> &7View the stats of another player."));
-                sender.sendMessage(Toolkit.translate("&7- &b/kp menu &7Displays the kits menu."));
-                sender.sendMessage(Toolkit.translate("&7- &b/kp setstats <player> <type> <amount> &7Change stats of a player."));
-                sender.sendMessage(Toolkit.translate("&7- &b/kp export &7Exports all stats to the new storage format."));
+                String format = messages.getString("Messages.Commands.HelpFormat");
+                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp")
+                        .replace("%args%", "").replace("%desc%", "Displays information about KitPvP")));
+                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp help")
+                        .replace("%args%", "").replace("%desc%", "Displays the help message")));
+                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp reload")
+                        .replace("%args%", "").replace("%desc%", "Reloads the configuration files")));
+                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp debug")
+                        .replace("%args%", "").replace("%desc%", "Prints debug information")));
+                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp addspawn")
+                        .replace("%args%", "").replace("%desc%", "Adds a spawn to an arena")));
+                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp arena")
+                        .replace("%args%", "<arena>").replace("%desc%", "Teleports you to a different arena")));
+                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp delarena")
+                        .replace("%args%", "").replace("%desc%", "Removes an arena")));
+                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp spawn")
+                        .replace("%args%", "").replace("%desc%", "Teleports you to the local arena spawn")));
+
+                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp create")
+                        .replace("%args%", "<kitName>").replace("%desc%", "Creates a kit from your inventory")));
+                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp delete")
+                        .replace("%args%", "<kitName>").replace("%desc%", "Deletes an existing kit")));
+                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp preview")
+                        .replace("%args%", "<kitName>").replace("%desc%", "Preview the contents of a kit")));
+                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp kits")
+                        .replace("%args%", "").replace("%desc%", "Lists all available kits")));
+
+                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp kit")
+                        .replace("%args%", "<kitName>").replace("%desc%", "Select a kit")));
+                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp kit")
+                        .replace("%args%", "<kitName> <player>").replace("%desc%", "Attempts to select a kit for a player")));
+                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp clear")
+                        .replace("%args%", "").replace("%desc%", "Clears your current kit")));
+                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp clear")
+                        .replace("%args%", "<player>").replace("%desc%", "Clears a kit for a player")));
+                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp stats")
+                        .replace("%args%", "").replace("%desc%", "View your stats")));
+                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp stats")
+                        .replace("%args%", "<player>").replace("%desc%", "View the stats of another player")));
+                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp menu")
+                        .replace("%args%", "").replace("%desc%", "Displays the kits menu")));
+                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp setstats")
+                        .replace("%args%", "<player> <type> <amount>").replace("%desc%", "Change stats of a player")));
+                sender.sendMessage(Toolkit.translate(format.replace("%cmd%", "kp export")
+                        .replace("%args%", "").replace("%desc%", "Exports all stats to the new storage format")));
                 String footer = messages.getString("Messages.Commands.HelpFooter");
                 if (footer != null) {
                     sender.sendMessage(Toolkit.translate(" "));

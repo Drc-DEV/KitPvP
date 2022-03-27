@@ -6,6 +6,7 @@ Messages:
   Commands:
     HelpHeader: '&3&m           &r &b&lKIT-PVP &3Created by Cervinakuy &3&m             '
     HelpFooter: '&3&m                                                                               '
+    HelpFormat: '&7- &b/%cmd% %args% &7%desc%'
     Create: '%prefix% &7The kit &b%kit% &7has successfully been created.'
     Delete: '%prefix% &7The kit &b%kit% &7has successfully been deleted.'
     Kit: '%prefix% &7You have selected kit &b%kit%&7.'
