@@ -322,7 +322,8 @@ public class MainCommand implements CommandExecutor {
                                 }
                                 if (time != 0) { // Still waiting
                                     if (config.getBoolean("Spawn.UseActionBar"))
-                                        ActionBar.sendActionBar(p, messages.getString("Messages.Commands.Time"));
+                                        ActionBar.sendActionBar(p, messages.getString("Messages.Commands.Time")
+                                                .replace("%time%", String.valueOf(time)));
                                     else
                                         p.sendMessage(messages.getString("Messages.Commands.Time")
                                                 .replace("%time%", String.valueOf(time)));
