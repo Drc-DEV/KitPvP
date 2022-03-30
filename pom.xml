@@ -37,7 +37,6 @@
                         <filter>
                             <artifact>*:*</artifact>
                             <excludes>
-                                <exclude>com/cryptomorin/xseries/messages/ActionBar*</exclude>
                                 <exclude>com/cryptomorin/xseries/particles/*</exclude>
                                 <exclude>com/cryptomorin/xseries/NMSExtras*</exclude>
                                 <exclude>com/cryptomorin/xseries/NoteBlockMusic*</exclude>
